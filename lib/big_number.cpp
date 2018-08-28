@@ -35,7 +35,7 @@ void BigNumber::trimPrefixZero() {
     if (i == data.size()) {
         data = "0";
     } else if (i > 0) {
-        data = data.substr(i, data.size() - i);
+        data = data.substr(i);
     }
 }
 
@@ -116,8 +116,8 @@ BigNumber BigNumber::pow(int n) {
 }
 
 int main() {
-    BigNumber b("111");
-    b = b.pow(100);
-    cout << b.toString() << endl;
+    BigNumber b("0");
+    BigNumber a("1111");
+    cout << (a * b).toString() << endl;
     return 0;
 }
