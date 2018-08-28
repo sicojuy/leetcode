@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
 class BigNumber {
@@ -9,25 +10,33 @@ class BigNumber {
         BigNumber(const char *s = NULL);
         BigNumber(const string &s);
         string& toString();
-        size_t size(); 
+        void trimPrefixZero();
         BigNumber& operator=(const BigNumber &num);
         BigNumber operator+(const BigNumber &num);
         BigNumber operator*(const BigNumber &num);
         BigNumber pow(int n);
 };
 
-BigNumber::BigNumber(const char *s) : data(s == NULL ? string("0") : string(s)) {
+BigNumber::BigNumber(const char *s): data(s == NULL ? string("0") : string(s)) {
 }
 
-BigNumber::BigNumber(const string &s) : data(s) {
+BigNumber::BigNumber(const string &s): data(s) {
 }
 
 string& BigNumber::toString() {
     return data;
 }
 
-size_t BigNumber::size() {
-    return data.size();
+void BigNumber::trimPrefixZero() {
+    int i;
+    for (i = 0; i < data.size(); i++) {
+        if (data[i] != '0') break;
+    }
+    if (i == data.size()) {
+        data = "0";
+    } else if (i > 0) {
+        data = data.substr(i, data.size() - i);
+    }
 }
 
 BigNumber& BigNumber::operator=(const BigNumber &num) {
@@ -66,51 +75,44 @@ BigNumber BigNumber::operator+(const BigNumber &num) {
         j--;
         k--;
     }
-    if (p > 0) {
-        tmpData[k] = '0' + p;
-        k--;
-    }
-    return BigNumber(tmpData.substr(k+1, tmpData.size() - k - 1));
+    tmpData[k] = p > 0 ? '0' + p : '0';
+    BigNumber result(tmpData);
+    result.trimPrefixZero();
+    return result;
 }
 
 BigNumber BigNumber::operator*(const BigNumber &num) {
-    BigNumber newNum; 
+    BigNumber result; 
     string tmpData;
     int i, j, k; 
-    tmpData.resize(data.size() + num.data.size());
+    tmpData.resize(data.size()+1);
     int n, p;
     for (i = num.data.size() - 1; i >= 0; i--) {
         k = tmpData.size() - 1;
-        for (int l = num.data.size() - 1; l > i; l--, k--) {
-            tmpData[k] = '0'; 
-        }
         p = 0;
         for (j = data.size() - 1; j >= 0; j--, k--) {
             n = (num.data[i] - '0') * (data[j] - '0') + p;
             p = n / 10;
             tmpData[k] = '0' + n % 10;
         }
-        if (p > 0) {
-            tmpData[k] = '0' + p;
-            k--;
-        }
-        newNum = newNum + BigNumber(tmpData.substr(k+1, tmpData.size() - k - 1)); 
+        tmpData[k] = p > 0 ? '0' + p : '0';
+        result = result + BigNumber(tmpData + string(num.data.size() - i - 1, '0'));
     }
-    return newNum;
+    return result;
 }
 
 BigNumber BigNumber::pow(int n) {
-    BigNumber newNum("1"); 
+    BigNumber result("1"); 
     BigNumber tmpNum;
     tmpNum.data = data;
     while (n > 0) {
         if (n & 1) {
-            newNum = newNum * tmpNum; 
+            result = result * tmpNum; 
         } 
         tmpNum = tmpNum * tmpNum;
         n = n >> 1;
     }
-    return newNum;
+    return result;
 }
 
 int main() {
